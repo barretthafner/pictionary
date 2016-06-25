@@ -1,0 +1,23 @@
+{
+  "name": "pictionary",
+  "version": "1.0.0",
+  "description": "A fun drawing game to play with your friends",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barretthafner/pictionary.git"
+  },
+  "author": "Barrett Hafner <barrett@hafnerindustries.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/barretthafner/pictionary/issues"
+  },
+  "homepage": "https://github.com/barretthafner/pictionary#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.4.8"
+  }
+}
