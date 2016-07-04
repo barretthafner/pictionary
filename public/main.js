@@ -1,19 +1,23 @@
 $(document).ready(function() {
-  var socket = io();
-  var canvas, context;
-  var drawing = false;
-  var guessBox, newGuess, drawerControls, topMessage;
+  var socket = io(),
+      canvas = $('canvas'),
+      guessBox = $('#guess input'),
+      newGuess = $('#new-guess'),
+      drawerControls = $('#drawer-controls'),
+      topMessage = $('#top-message'),
+      wordBox = $('#word-box'),
+      clearButton = $('#clear-button'),
+      newWordButton = $('#new-word-button'),
+      usersList = $('#users-list'),
+      usersBox = $('#users-box'),
+      userWinner = $('.user-winner'),
+      drawing = false;
 
   //  -------------------------------------------------------------------
 
-  canvas = $('canvas');
-  guessBox = $('#guess input');
-  newGuess = $('#new-guess');
-  topMessage = $('#top-message');
-  drawerControls = $('#drawer-controls');
-  context = canvas[0].getContext('2d');
-  canvas[0].width = canvas[0].offsetWidth;
-  canvas[0].height = canvas[0].offsetHeight;
+      var context = canvas[0].getContext('2d');
+      canvas[0].width = canvas[0].offsetWidth;
+      canvas[0].height = canvas[0].offsetHeight;
 
   //  -------------------------------------------------------------------
 
@@ -37,14 +41,25 @@ $(document).ready(function() {
     context.clearRect(0, 0, canvas[0].width, canvas[0].height);
   };
 
-  var generateTop = function(isEditor) {
-    if(isEditor) {
+  var generateTop = function(isDrawer) {
+    if(isDrawer) {
       drawerControls.show();
       topMessage.hide();
     } else {
       drawerControls.hide();
       topMessage.show();
     }
+  };
+
+  var generateUsersList = function(users, isDrawer) {
+    usersList.html("");
+    var userIndex = 1;
+    for (user in users.list) {
+      var thisUser = users.list[user];
+      usersList.append('<p><button class="user-winner" data-id="' + thisUser.id + '">Winner!</button> ' + userIndex + ') ' + thisUser.username + ' - Last Guess: <span></span></p>');
+      userIndex++;
+    }
+    usersBox.show();
   };
 
 //  -------------------------------------------------------------------
@@ -68,9 +83,13 @@ $(document).ready(function() {
 
   socket.on('update page', function(users) {
     var thisId = socket.nsp + '#' + socket.id;
-    console.log(users);
     var isDrawer = users.drawerId === thisId;
     generateTop(isDrawer);
+    generateUsersList(users, isDrawer);
+  });
+
+  socket.on('set word', function(word) {
+    wordBox.text('Make em guess: ' + word);
   });
 
   //  -------------------------------------------------------------------
@@ -93,10 +112,18 @@ $(document).ready(function() {
 
   });
 
-  $('#clear-button').on('click', function() {
+  clearButton.on('click', function() {
     socket.emit('clear canvas');
   });
 
+  newWordButton.on('click', function() {
+    socket.emit('new word');
+  });
+
   guessBox.on('keydown', onKeyDown);
+
+  $('button.user-winner').on('click', function(event) {
+    console.log(event);
+  });
 
 });

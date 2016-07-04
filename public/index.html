@@ -44,6 +44,10 @@ canvas {
 
 <div id="main">
   <h1>Pictionary</h1>
+    <div id="users-box" style="display: none">
+    <h2>Users List</h2>
+    <div id="users-list"></div>
+  </div>
   <div id="top-message" style='display: none'>
     <div id="guess">
       Make a guess: <input type="text">
@@ -53,7 +57,10 @@ canvas {
   </div>
   <div id='drawer-controls' style='display: none'>
     <p>You are the drawer!</p>
+    <p id='word-box'></p>
     <button id='clear-button'>Clear canvas</button>
+    <button id='new-word-button'>Get a new word</button>
   </div>
+
   <canvas id="canvas"></canvas>
 </div>

@@ -9,6 +9,7 @@ var server = http.Server(app);
 var io = socket_io(server);
 
 //  -------------------------------------------------------------------
+
 var users = {
   list: {},
   drawerId: null,
@@ -49,12 +50,25 @@ var users = {
     }
     console.log('------------------------------------');
 
+  },
+  setlastGuess: function(user, guess) {
+    var foundUser = this.list[user.id];
+    if (foundUser) {
+      foundUser.lastGuess = guess;
+      return true;
+    }
+    return false;
   }
 };
 
 //  -------------------------------------------------------------------
 
-var WORDS = [
+var words = {
+  newWord: function() {
+    var randomIndex = Math.floor(Math.random() * this.list.length);
+    return this.list[randomIndex];
+  },
+  list: [
     "word", "letter", "number", "person", "pen", "class", "people",
     "sound", "water", "side", "place", "man", "men", "woman", "women", "boy",
     "girl", "year", "day", "week", "month", "name", "sentence", "line", "air",
@@ -68,7 +82,8 @@ var WORDS = [
     "body", "dog", "family", "song", "door", "product", "wind", "ship", "area",
     "rock", "order", "fire", "problem", "piece", "top", "bottom", "king",
     "space"
-];
+  ]
+};
 
 //  -------------------------------------------------------------------
 
@@ -78,15 +93,16 @@ io.on('connection', function (socket) {
 
     var user = {
       username: username,
-      id: socket.id
+      id: socket.id,
+      lastGuess: ''
     };
 
     users.addUser(user);
 
     if (!users.drawerId) {
       users.setEditor(user);
+      socket.emit('set word', words.newWord());
     }
-
 
     io.emit('update page', users);
 
@@ -108,6 +124,10 @@ io.on('connection', function (socket) {
     io.emit('clear canvas');
   });
 
+  socket.on('new word', function() {
+    socket.emit('set word', words.newWord());
+  });
+
   socket.on('disconnect', function() {
    var user = users.removeUser(socket.id);
 
@@ -117,6 +137,7 @@ io.on('connection', function (socket) {
     } else if (user.id === users.drawerId) {
       var newEditor = users.list[Object.keys(users.list)[0]];
       users.setEditor(newEditor);
+      io.sockets.connected[newEditor.id].emit('set word', words.newWord());
       io.emit('update page', users);
     }
   });
