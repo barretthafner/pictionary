@@ -43,6 +43,17 @@ canvas {
 <script src="main.js"></script>
 
 <div id="main">
-    <h1>Pictionary</h1>
-    <canvas id="canvas"></canvas>
+  <h1>Pictionary</h1>
+  <div id="top-message" style='display: none'>
+    <div id="guess">
+      Make a guess: <input type="text">
+    </div>
+  </div>
+  <div id="new-guess">
+  </div>
+  <div id='drawer-controls' style='display: none'>
+    <p>You are the drawer!</p>
+    <button id='clear-button'>Clear canvas</button>
+  </div>
+  <canvas id="canvas"></canvas>
 </div>
