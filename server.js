@@ -40,7 +40,7 @@ var users = {
 
     return user;
   },
-  setEditor: function(user) {
+  setDrawer: function(user) {
     this.drawerId = user? user.id : null;
 
     if (user) {
@@ -50,14 +50,6 @@ var users = {
     }
     console.log('------------------------------------');
 
-  },
-  setlastGuess: function(user, guess) {
-    var foundUser = this.list[user.id];
-    if (foundUser) {
-      foundUser.lastGuess = guess;
-      return true;
-    }
-    return false;
   }
 };
 
@@ -100,7 +92,7 @@ io.on('connection', function (socket) {
     users.addUser(user);
 
     if (!users.drawerId) {
-      users.setEditor(user);
+      users.setDrawer(user);
       socket.emit('set word', words.newWord());
     }
 
@@ -113,11 +105,9 @@ io.on('connection', function (socket) {
   });
 
   socket.on('guess', function(guess) {
-
     var user = users.getUserById(socket.id);
-    var message = user.username + ': ' + guess;
-
-    io.emit('guess', message);
+    user.lastGuess = guess;
+    io.emit('guess', user);
   });
 
   socket.on('clear canvas', function() {
@@ -128,17 +118,24 @@ io.on('connection', function (socket) {
     socket.emit('set word', words.newWord());
   });
 
+  socket.on('winner', function(id) {
+    var winner = users.getUserById(id);
+    users.setDrawer(winner);
+    io.emit('message', winner.username + ' won! It was: ' + winner.lastGuess);
+    io.emit('update page', users);
+  });
+
   socket.on('disconnect', function() {
-   var user = users.removeUser(socket.id);
-
-
-    if (users.list.length === 0) {
-      users.setEditor();
-    } else if (user.id === users.drawerId) {
+    var user = users.removeUser(socket.id);
+    io.emit('message', user.username + ' disconnected!');
+    if (user.id === users.drawerId) {
       var newEditor = users.list[Object.keys(users.list)[0]];
-      users.setEditor(newEditor);
-      io.sockets.connected[newEditor.id].emit('set word', words.newWord());
-      io.emit('update page', users);
+      users.setDrawer(newEditor);
+      if (newEditor) {
+        io.sockets.connected[newEditor.id].emit('set word', words.newWord());
+        io.emit('update page', users);
+
+      }
     }
   });
 
