@@ -122,6 +122,7 @@ io.on('connection', function (socket) {
     var winner = users.getUserById(id);
     users.setDrawer(winner);
     io.emit('message', winner.username + ' won! It was: ' + winner.lastGuess);
+    io.emit('clear canvas');
     io.emit('update page', users);
   });
 

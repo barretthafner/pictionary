@@ -9,7 +9,8 @@ $(document).ready(function() {
       clearButton = $('#clear-button'),
       newWordButton = $('#new-word-button'),
       usersList = $('#users-list'),
-      drawing = false;
+      drawing = false,
+      drawer = false;
 
   //  -------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ canvas[0].height = canvas[0].offsetHeight;
     }
   };
 
-  var generateUsersList = function(users, isDrawer) {
+  var generateUsersList = function(users) {
     usersList.html("");
     var userIndex = 1;
     for (user in users.list) {
@@ -49,7 +50,7 @@ canvas[0].height = canvas[0].offsetHeight;
         usersList.prepend('<p><strong>Drawer is:</strong> ' + thisUser.username + '</p>');
       } else {
         html += '<p data-id="' + thisUser.id + '">'
-        if (isDrawer) {
+        if (drawer) {
           html += '<button class="winner">Winner!</button> '
         }
         html += userIndex + ') ' + thisUser.username + ' - <em>Last Guess:</em> <strong><span></span></strong></p>'
@@ -82,9 +83,9 @@ canvas[0].height = canvas[0].offsetHeight;
 
   socket.on('update page', function(users) {
     var thisId = socket.nsp + '#' + socket.id;
-    var isDrawer = users.drawerId === thisId;
-    generateTop(isDrawer);
-    generateUsersList(users, isDrawer);
+    drawer = users.drawerId === thisId;
+    generateTop(drawer);
+    generateUsersList(users);
   });
 
   socket.on('set word', function(word) {
@@ -101,7 +102,9 @@ canvas[0].height = canvas[0].offsetHeight;
   //  -------------------------------------------------------------------
 
   canvas.on('mousedown', function() {
-    drawing = true;
+    if (drawer) {
+      drawing = true;
+    }
   });
 
   canvas.on('mouseup', function() {
